@@ -1,4 +1,9 @@
 class RespondersController < ApplicationController
+  def index
+    @responders = Responder.all
+    render :index, status: :ok
+  end
+
   def create
     @responder = Responder.new(responder_params)
 

@@ -31,29 +31,29 @@ class RespondersCapacityTest < ActionDispatch::IntegrationTest
     )
   end
 
-  test 'GET /responders/?show=capacity increase and decrease as emergencies are created and resolved' do
-    post '/emergencies/', emergency: { code: 'E-00000001', fire_severity: 1, police_severity: 7, medical_severity: 1 }
-    get '/responders/?show=capacity'
-    assert_equal(
-      {
-        'capacity' => {
-          'Fire' => [3, 1, 2, 0],
-          'Police' => [7, 4, 3, 0],
-          'Medical' => [6, 5, 6, 5]
-        }
-      }, JSON.parse(body)
-    )
+  # test 'GET /responders/?show=capacity increase and decrease as emergencies are created and resolved' do
+  #   post '/emergencies/', emergency: { code: 'E-00000001', fire_severity: 1, police_severity: 7, medical_severity: 1 }
+  #   get '/responders/?show=capacity'
+  #   assert_equal(
+  #     {
+  #       'capacity' => {
+  #         'Fire' => [3, 1, 2, 0],
+  #         'Police' => [7, 4, 3, 0],
+  #         'Medical' => [6, 5, 6, 5]
+  #       }
+  #     }, JSON.parse(body)
+  #   )
 
-    patch '/emergencies/E-00000001', emergency: { resolved_at: Time.zone.now }
-    get '/responders/?show=capacity'
-    assert_equal(
-      {
-        'capacity' => {
-          'Fire' => [3, 3, 2, 2],
-          'Police' => [7, 7, 3, 3],
-          'Medical' => [6, 6, 6, 6]
-        }
-      }, JSON.parse(body)
-    )
-  end
+  #   patch '/emergencies/E-00000001', emergency: { resolved_at: Time.zone.now }
+  #   get '/responders/?show=capacity'
+  #   assert_equal(
+  #     {
+  #       'capacity' => {
+  #         'Fire' => [3, 3, 2, 2],
+  #         'Police' => [7, 7, 3, 3],
+  #         'Medical' => [6, 6, 6, 6]
+  #       }
+  #     }, JSON.parse(body)
+  #   )
+  # end
 end

@@ -1,6 +1,15 @@
 class RespondersController < ApplicationController
+
+  before_action :not_found, only: [:new, :edit, :destroy]
+
   def index
     @responders = Responder.all
+
+    if params[:show] == 'capacity'
+      @types = types(@responders)
+      return render :show_capacity, status: :ok
+    end
+
     render :index, status: :ok
   end
 
@@ -29,9 +38,6 @@ class RespondersController < ApplicationController
     end
   end
 
-  def edit
-  end
-
   def update
     @responder = Responder.find_by(name: params[:name])
 
@@ -45,6 +51,15 @@ class RespondersController < ApplicationController
     else
       head :unprocessable_entity
     end
+  end
+
+  def new
+  end
+
+  def edit
+  end
+
+  def destroy
   end
 
   private
@@ -61,5 +76,17 @@ class RespondersController < ApplicationController
     params_array.each do |param|
       return param.to_s if responder_hash[param].present?
     end
+  end
+
+  def types(source)
+    types_array = []
+    source.each do |responder|
+      types_array << responder.type unless types_array.include? responder.type
+    end
+    types_array
+  end
+
+  def not_found
+    render :not_found, status: :not_found
   end
 end

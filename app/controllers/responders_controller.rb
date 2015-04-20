@@ -1,5 +1,4 @@
 class RespondersController < ApplicationController
-
   before_action :not_found, only: [:new, :edit, :destroy]
 
   def index
@@ -66,16 +65,6 @@ class RespondersController < ApplicationController
 
   def responder_params
     params.require(:responder).permit(:type, :name, :capacity, :on_duty, :emergency_code)
-  end
-
-  def unpermitted_param?(responder_hash, params_array)
-    responder_hash.any? { |key, _value| params_array.include? key }
-  end
-
-  def unpermitted_param(responder_hash, params_array)
-    params_array.each do |param|
-      return param.to_s if responder_hash[param].present?
-    end
   end
 
   def types(source)

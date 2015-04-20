@@ -4,10 +4,18 @@ class RespondersController < ApplicationController
     render :index, status: :ok
   end
 
+  def show
+    @responder = Responder.find_by(name: params[:name])
+    if @responder
+      render :show, status: :ok
+    else
+      head :not_found
+    end
+  end
+
   def create
     @responder = Responder.new(responder_params)
 
-    # binding.pry
     unpermitted_params_array = %w(emergency_code id on_duty)
 
     if unpermitted_param?(params[:responder], unpermitted_params_array)

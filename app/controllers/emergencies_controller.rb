@@ -1,4 +1,14 @@
 class EmergenciesController < ApplicationController
+  def show
+    @emergency = Emergency.find_by(code: params[:code])
+    # binding.pry
+    if @emergency
+      render :show, status: :ok
+    else
+      head :not_found
+    end
+  end
+
   def create
     @emergency = Emergency.new(emergency_params)
 

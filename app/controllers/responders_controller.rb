@@ -1,6 +1,4 @@
 class RespondersController < ApplicationController
-  before_action :not_found, only: [:new, :edit, :destroy]
-
   def index
     @responders = Responder.all
 

@@ -20,7 +20,7 @@ ActiveRecord::Schema.define(version: 20150420143706) do
     t.integer  "medical_severity"
     t.datetime "created_at",       null: false
     t.datetime "updated_at",       null: false
-    t.time     "resolved_at"
+    t.datetime "resolved_at"
   end
 
   create_table "responders", force: :cascade do |t|

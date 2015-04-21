@@ -21,4 +21,12 @@ class Responder < ActiveRecord::Base
   def available_on_duty?
     available? && on_duty?
   end
+
+  def self.on_duty_capacity
+    where(on_duty: true).sum(:capacity)
+  end
+
+  def self.on_duty_capacity_by(type)
+    where(type: type).where(on_duty: true).sum(:capacity)
+  end
 end

@@ -34,6 +34,7 @@ class RespondersCapacityTest < ActionDispatch::IntegrationTest
   test 'GET /responders/?show=capacity increase and decrease as emergencies are created and resolved' do
     post '/emergencies/', emergency: { code: 'E-00000001', fire_severity: 1, police_severity: 7, medical_severity: 1 }
     get '/responders/?show=capacity'
+
     assert_equal(
       {
         'capacity' => {
@@ -46,6 +47,7 @@ class RespondersCapacityTest < ActionDispatch::IntegrationTest
 
     patch '/emergencies/E-00000001', emergency: { resolved_at: Time.zone.now }
     get '/responders/?show=capacity'
+
     assert_equal(
       {
         'capacity' => {

@@ -2,10 +2,7 @@ class RespondersController < ApplicationController
   def index
     @responders = Responder.all
 
-    if params[:show] == 'capacity'
-      @types = types(@responders)
-      return render :show_capacity, status: :ok
-    end
+    return responders_capacity if params[:show] == 'capacity'
 
     render :index, status: :ok
   end
@@ -65,15 +62,49 @@ class RespondersController < ApplicationController
     params.require(:responder).permit(:type, :name, :capacity, :on_duty, :emergency_code)
   end
 
-  def types(source)
-    types_array = []
-    source.each do |responder|
-      types_array << responder.type unless types_array.include? responder.type
-    end
-    types_array
-  end
-
   def not_found
     render :not_found, status: :not_found
+  end
+
+  def responders_capacity
+    @types = Responder.types
+
+    @responders_capacity  = []
+    responder_capacity = []
+
+    @types.each do |type|
+      total_capacity = Responder.total_capacity_by(type)
+      available_capacity = Responder.total_available_capacity_by(type)
+      on_duty_capacity = Responder.total_on_duty_capacity_by(type)
+      available_on_duty_capacity = Responder.total_available_on_duty_capacity_by(type)
+
+      responders_tbl = Responder.filter_by(type)
+
+      Emergency.filter_by(type).each do |e|
+        if e.resolved_at
+          responders_tbl.where(emergency_code: e.code).each do |r|
+            available_capacity += r.capacity
+            available_on_duty_capacity += r.capacity
+            r.update(emergency_code: nil)
+          end
+        else
+          responders_tbl.each do |r|
+            if e.not_resolved_by_type?(type) && r.available_on_duty?
+              available_capacity -= r.capacity
+              available_on_duty_capacity -= r.capacity
+              r.update(emergency_code: e.code)
+              e["#{type.downcase}_severity"] = 0
+              e.save
+            end
+          end
+        end
+      end
+
+      responder_capacity << total_capacity << available_capacity << on_duty_capacity << available_on_duty_capacity
+      @responders_capacity << responder_capacity
+      responder_capacity = []
+    end
+
+    render :show_capacity, status: :ok
   end
 end

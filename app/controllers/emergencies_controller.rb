@@ -25,8 +25,8 @@ class EmergenciesController < ApplicationController
       render :unpermitted_parameter_error, status: :unprocessable_entity
     elsif @emergency.valid?
       responders_dispatch(@emergency)
-      # @emergency.save
-      # binding.pry
+      @emergency.calc_full_response
+      @emergency.save
       render :new, status: :created
     else
       render :new, status: :unprocessable_entity

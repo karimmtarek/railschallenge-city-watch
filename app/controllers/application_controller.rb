@@ -42,14 +42,17 @@ class ApplicationController < ActionController::Base
             if i == 0 || r.capacity == severity[type.downcase]
               emergency.responders << r
               emergency.save!
+              r.emergency_code = emergency.code
               severity[type.downcase] -= r.capacity
               break if severity[type.downcase] <= 0
             elsif responders_tbl[i - 1].available?
               emergency.responders << responders_tbl[i - 1]
               emergency.save!
+              responders_tbl[i - 1].code = emergency.code
             else
               emergency.responders << r
               emergency.save!
+              r.emergency_code = emergency.code
               severity[type.downcase] -= r.capacity
               break if severity[type.downcase] <= 0
             end
@@ -58,7 +61,8 @@ class ApplicationController < ActionController::Base
       end
     end
 
-    emergency.calc_full_response
+    # emergency.calc_full_response
+    # binding.pry
     @responders_names = emergency.responders.map(&:name) unless emergency.responders.blank?
   end
 end

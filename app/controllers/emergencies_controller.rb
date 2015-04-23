@@ -23,8 +23,10 @@ class EmergenciesController < ApplicationController
     if unpermitted_param?(params[:emergency], unpermitted_params_array)
       @unpermitted_param = unpermitted_param(params[:emergency], unpermitted_params_array)
       render :unpermitted_parameter_error, status: :unprocessable_entity
-    elsif @emergency.save
+    elsif @emergency.valid?
       responders_dispatch(@emergency)
+      # @emergency.save
+      # binding.pry
       render :new, status: :created
     else
       render :new, status: :unprocessable_entity

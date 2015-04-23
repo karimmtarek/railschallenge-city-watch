@@ -7,6 +7,7 @@ class Emergency < ActiveRecord::Base
             presence: true,
             numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   before_save :assign_emergency_code
+  # after_save :calc_full_response
 
   def self.total_number
     # where(resolved_at: nil).count
@@ -54,7 +55,7 @@ class Emergency < ActiveRecord::Base
       responder_capacity = responders.where(type: type).sum(:capacity)
       self.full_response += 1 if responder_capacity >= self["#{type.downcase}_severity"]
     end
-    save
+    # save
   end
 
   def assign_emergency_code

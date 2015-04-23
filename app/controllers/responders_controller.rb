@@ -93,6 +93,7 @@ class RespondersController < ApplicationController
               available_capacity -= r.capacity
               available_on_duty_capacity -= r.capacity
               r.update(emergency_code: e.code)
+              e.full_response += 1 if r.capacity == e["#{type.downcase}_severity"]
               e["#{type.downcase}_severity"] = 0
               e.save
             end

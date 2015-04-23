@@ -22,4 +22,43 @@ class ApplicationController < ActionController::Base
   def not_found
     render :not_found, status: :not_found
   end
+
+  def responders_dispatch(emergency)
+    return if emergency.resolved_at
+
+    responder_types = Responder.types
+
+    severity = {}
+    responder_types.each do |type|
+      t = type.downcase
+      severity[t] = emergency["#{t}_severity"]
+    end
+
+    responder_types.each do |type|
+      if severity[type.downcase] > 0
+        responders_tbl = Responder.on_duty_by(type)
+        responders_tbl.each_with_index do |r, i|
+          if r.capacity <= severity[type.downcase]
+            if i == 0 || r.capacity == severity[type.downcase]
+              emergency.responders << r
+              emergency.save!
+              severity[type.downcase] -= r.capacity
+              break if severity[type.downcase] <= 0
+            elsif responders_tbl[i - 1].available?
+              emergency.responders << responders_tbl[i - 1]
+              emergency.save!
+            else
+              emergency.responders << r
+              emergency.save!
+              severity[type.downcase] -= r.capacity
+              break if severity[type.downcase] <= 0
+            end
+          end
+        end
+      end
+    end
+
+    emergency.calc_full_response
+    @responders_names = emergency.responders.map(&:name) unless emergency.responders.blank?
+  end
 end

@@ -70,7 +70,7 @@ class EmergenciesDispatchTest < ActionDispatch::IntegrationTest
       ['F-101', 'F-103', 'F-104', 'M-101', 'M-102', 'M-103', 'P-102', 'P-103', 'P-104', 'P-105'],
       json_response['emergency']['responders'].sort
     )
-    refute json_response['emergency']['full_response']
+    assert json_response['emergency']['full_response']
   end
 
   test 'POST /emergencies/ will dispatch NO resources for an emergency with severities that are all zero' do

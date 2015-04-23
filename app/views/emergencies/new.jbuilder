@@ -4,6 +4,8 @@ if @emergency.valid?
     json.fire_severity @emergency.fire_severity
     json.police_severity @emergency.police_severity
     json.medical_severity @emergency.medical_severity
+    json.responders @responders_names ? @responders_names:[]
+    json.full_response @emergency.full_response
   end
 else
   json.message @emergency.errors.messages

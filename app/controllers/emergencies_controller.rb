@@ -1,7 +1,7 @@
 class EmergenciesController < ApplicationController
   def index
     @emergencies = Emergency.all
-    @full_responses = ['missong', Emergency.total_number]
+    @full_responses = [Emergency.full_response, Emergency.total_number]
     render :index, status: :ok
   end
 
@@ -24,6 +24,7 @@ class EmergenciesController < ApplicationController
       @unpermitted_param = unpermitted_param(params[:emergency], unpermitted_params_array)
       render :unpermitted_parameter_error, status: :unprocessable_entity
     elsif @emergency.save
+      responders_dispatch(@emergency)
       render :new, status: :created
     else
       render :new, status: :unprocessable_entity

@@ -58,7 +58,6 @@ class Emergency < ActiveRecord::Base
         self.full_response += 1 if responder_capacity >= self["#{type.downcase}_severity"]
       end
     end
-    # p self.full_response
     save
   end
 
@@ -69,5 +68,16 @@ class Emergency < ActiveRecord::Base
       r.emergency_code = code
       r.save
     end
+  end
+
+  def release_responders
+    return if responders.blank?
+
+    responders.each do |r|
+      r.emergency_code = nil
+      r.save
+    end
+    self.responders = []
+    save
   end
 end

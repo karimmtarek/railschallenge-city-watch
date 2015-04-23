@@ -42,6 +42,7 @@ class EmergenciesController < ApplicationController
       @unpermitted_param = unpermitted_param(params[:emergency], unpermitted_params_array)
       render :unpermitted_parameter_error, status: :unprocessable_entity
     elsif @emergency.update(emergency_params)
+      @emergency.release_responders if params[:emergency][:resolved_at].present?
       render :show, status: :ok
     else
       head :unprocessable_entity

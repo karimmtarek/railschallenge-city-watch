@@ -56,6 +56,9 @@ class ApplicationController < ActionController::Base
               severity[type.downcase] -= r.capacity
               break if severity[type.downcase] <= 0
             end
+          elsif i == responders_tbl.length - 1
+            emergency.responders << r
+            emergency.save!
           end
         end
       end

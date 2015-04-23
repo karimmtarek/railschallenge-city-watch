@@ -78,29 +78,6 @@ class RespondersController < ApplicationController
       on_duty_capacity = Responder.total_on_duty_capacity_by(type)
       available_on_duty_capacity = Responder.total_available_on_duty_capacity_by(type)
 
-      # responders_tbl = Responder.filter_by(type)
-
-      # Emergency.filter_by(type).each do |e|
-      #   if e.resolved_at
-      #     responders_tbl.where(emergency_code: e.code).each do |r|
-      #       available_capacity += r.capacity
-      #       available_on_duty_capacity += r.capacity
-      #       r.update(emergency_code: nil)
-      #     end
-      #   else
-      #     responders_tbl.each do |r|
-      #       if e.not_resolved_by_type?(type) && r.available_on_duty?
-      #         available_capacity -= r.capacity
-      #         available_on_duty_capacity -= r.capacity
-      #         r.update(emergency_code: e.code)
-      #         e.full_response += 1 if r.capacity == e["#{type.downcase}_severity"]
-      #         e["#{type.downcase}_severity"] = 0
-      #         e.save
-      #       end
-      #     end
-      #   end
-      # end
-
       responder_capacity << total_capacity << available_capacity << on_duty_capacity << available_on_duty_capacity
       @responders_capacity << responder_capacity
       responder_capacity = []

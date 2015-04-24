@@ -9,7 +9,7 @@ class ApplicationController < ActionController::Base
 
   private
 
-  def unpermitted_param?(responder_hash, params_array)
+  def unpermitted?(responder_hash, params_array)
     responder_hash.any? { |key, _value| params_array.include? key }
   end
 
@@ -17,6 +17,11 @@ class ApplicationController < ActionController::Base
     params_array.each do |param|
       return param.to_s if responder_hash[param].present?
     end
+  end
+
+  def unpermitted(request_params, unpermitted_params)
+    @unpermitted_param = unpermitted_param(request_params, unpermitted_params)
+    render :unpermitted_parameter_error, status: :unprocessable_entity
   end
 
   def not_found

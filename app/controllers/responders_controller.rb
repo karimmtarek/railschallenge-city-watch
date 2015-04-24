@@ -20,12 +20,11 @@ class RespondersController < ApplicationController
   def create
     @responder = Responder.new(responder_params)
 
-    unpermitted_params_array = %w(emergency_code id on_duty)
+    if unpermitted?(params[:responder], %w(emergency_code id on_duty))
+      return unpermitted(params[:responder], %w(emergency_code id on_duty))
+    end
 
-    if unpermitted_param?(params[:responder], unpermitted_params_array)
-      @unpermitted_param = unpermitted_param(params[:responder], unpermitted_params_array)
-      render :unpermitted_parameter_error, status: :unprocessable_entity
-    elsif @responder.save
+    if @responder.save
       render :show, status: :created
     else
       render :error, status: :unprocessable_entity
@@ -35,12 +34,11 @@ class RespondersController < ApplicationController
   def update
     @responder = Responder.find_by(name: params[:name])
 
-    unpermitted_params_array = %w(emergency_code type name capacity)
+    if unpermitted?(params[:responder], %w(emergency_code type name capacity))
+      return unpermitted(params[:responder], %w(emergency_code type name capacity))
+    end
 
-    if unpermitted_param?(params[:responder], unpermitted_params_array)
-      @unpermitted_param = unpermitted_param(params[:responder], unpermitted_params_array)
-      render :unpermitted_parameter_error, status: :unprocessable_entity
-    elsif @responder.update(responder_params)
+    if @responder.update(responder_params)
       render :show, status: :ok
     else
       head :unprocessable_entity

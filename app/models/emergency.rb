@@ -7,7 +7,6 @@ class Emergency < ActiveRecord::Base
             presence: true,
             numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   before_save :assign_emergency_code
-  # after_save :calc_full_response
 
   def self.total_number
     # where(resolved_at: nil).count
@@ -45,10 +44,8 @@ class Emergency < ActiveRecord::Base
   end
 
   def calc_full_response
-    return self.full_response = 0 if responders.blank? ||
-                                     (fire_severity == 0 &&
-                                      police_severity == 0 &&
-                                      medical_severity == 0)
+    return self.full_response = 0 if responders.blank? || zero_severity?
+
     self.full_response = 0
     %w(Fire Police Medical).each do |type|
       if self["#{type.downcase}_severity"] == 0
@@ -59,6 +56,10 @@ class Emergency < ActiveRecord::Base
       end
     end
     save
+  end
+
+  def zero_severity?
+    fire_severity == 0 && police_severity == 0 && medical_severity == 0
   end
 
   def assign_emergency_code
@@ -78,6 +79,6 @@ class Emergency < ActiveRecord::Base
       r.save
     end
     self.responders = []
-    save
+    # save
   end
 end

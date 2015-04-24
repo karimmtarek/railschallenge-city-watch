@@ -7,7 +7,6 @@ class EmergenciesController < ApplicationController
 
   def show
     @emergency = Emergency.find_by(code: params[:code])
-    # binding.pry
     if @emergency
       render :show, status: :ok
     else
@@ -18,12 +17,11 @@ class EmergenciesController < ApplicationController
   def create
     @emergency = Emergency.new(emergency_params)
 
-    unpermitted_params_array = %w(id resolved_at)
+    if unpermitted?(params[:emergency], %w(id resolved_at))
+      return unpermitted(params[:emergency], %w(id resolved_at))
+    end
 
-    if unpermitted_param?(params[:emergency], unpermitted_params_array)
-      @unpermitted_param = unpermitted_param(params[:emergency], unpermitted_params_array)
-      render :unpermitted_parameter_error, status: :unprocessable_entity
-    elsif @emergency.valid?
+    if @emergency.valid?
       responders_dispatch(@emergency)
       @emergency.calc_full_response
       @emergency.save
@@ -36,13 +34,12 @@ class EmergenciesController < ApplicationController
   def update
     @emergency = Emergency.find_by(code: params[:code])
 
-    unpermitted_params_array = %w(code)
+    if unpermitted?(params[:emergency], %w(code))
+      return unpermitted(params[:emergency], %w(code))
+    end
 
-    if unpermitted_param?(params[:emergency], unpermitted_params_array)
-      @unpermitted_param = unpermitted_param(params[:emergency], unpermitted_params_array)
-      render :unpermitted_parameter_error, status: :unprocessable_entity
-    elsif @emergency.update(emergency_params)
-      @emergency.release_responders if params[:emergency][:resolved_at].present?
+    if @emergency.update(emergency_params)
+      release_responders
       render :show, status: :ok
     else
       head :unprocessable_entity
@@ -62,5 +59,9 @@ class EmergenciesController < ApplicationController
 
   def emergency_params
     params.require(:emergency).permit(:code, :fire_severity, :police_severity, :medical_severity, :resolved_at)
+  end
+
+  def release_responders
+    @emergency.release_responders if params[:emergency][:resolved_at].present?
   end
 end

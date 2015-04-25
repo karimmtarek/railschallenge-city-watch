@@ -22,9 +22,9 @@ class EmergenciesController < ApplicationController
     end
 
     if @emergency.valid?
-      responders_dispatch(@emergency)
-      # @emergency.calc_full_response
-      # @emergency.save
+      responders = RespondersDispatcher.new(@emergency)
+      responders.dispatch
+      @responders_names = responders.responders_names
       render :new, status: :created
     else
       render :new, status: :unprocessable_entity

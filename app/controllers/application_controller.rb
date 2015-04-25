@@ -28,62 +28,62 @@ class ApplicationController < ActionController::Base
     render :not_found, status: :not_found
   end
 
-  def responders_dispatch(emergency)
-    return if emergency.resolved_at
+  # def responders_dispatch(emergency)
+  #   return if emergency.resolved_at
 
-    responder_types = Responder.types
+  #   responder_types = Responder.types
 
-    severity = severity_values(responder_types, emergency)
+  #   severity = severity_values(responder_types, emergency)
 
-    dispatch_by_type(emergency, responder_types, severity, Responder)
-    emergency.calc_full_response
-    emergency.save
+  #   dispatch_by_type(emergency, responder_types, severity, Responder)
+  #   emergency.calc_full_response
+  #   emergency.save
 
-    @responders_names = emergency.responders.map(&:name) unless emergency.responders.blank?
-  end
+  #   @responders_names = emergency.responders.map(&:name) unless emergency.responders.blank?
+  # end
 
-  def severity_values(types, obj)
-    hash_name = {}
-    types.each do |type|
-      t = type.downcase
-      hash_name[t] = obj["#{t}_severity"]
-    end
-    hash_name
-  end
+  # def severity_values(types, obj)
+  #   hash_name = {}
+  #   types.each do |type|
+  #     t = type.downcase
+  #     hash_name[t] = obj["#{t}_severity"]
+  #   end
+  #   hash_name
+  # end
 
-  def dispatch_by_type(obj, types, severity_hash, model)
-    types.each do |type|
-      next unless severity_hash[type.downcase] > 0
-      responders_tbl = model.available_on_duty_by(type)
-      dispatcher(obj, responders_tbl, severity_hash, type)
-    end
-  end
+  # def dispatch_by_type(obj, types, severity_hash, model)
+  #   types.each do |type|
+  #     next unless severity_hash[type.downcase] > 0
+  #     responders_tbl = model.available_on_duty_by(type)
+  #     dispatcher(obj, responders_tbl, severity_hash, type)
+  #   end
+  # end
 
-  def dispatcher(obj, tbl, severity_hash, type)
-    tbl.each_with_index do |responder, index|
-      if responder.capacity <= severity_hash[type.downcase]
-        if index == 0 || responder.capacity == severity_hash[type.downcase]
-          add_responder(obj, responder, severity_hash, type)
-          break if severity_hash[type.downcase] <= 0
-        elsif tbl[index - 1].available?
-          obj.responders << tbl[index - 1]
-          obj.save!
-          tbl[index - 1].code = obj.code
-        else
-          add_responder(obj, responder, severity_hash, type)
-          break if severity_hash[type.downcase] <= 0
-        end
-      elsif index == tbl.length - 1
-        add_responder(obj, responder, nil, nil)
-      end
-    end
-  end
+  # def dispatcher(obj, tbl, severity_hash, type)
+  #   tbl.each_with_index do |responder, index|
+  #     if responder.capacity <= severity_hash[type.downcase]
+  #       if index == 0 || responder.capacity == severity_hash[type.downcase]
+  #         add_responder(obj, responder, severity_hash, type)
+  #         break if severity_hash[type.downcase] <= 0
+  #       elsif tbl[index - 1].available?
+  #         obj.responders << tbl[index - 1]
+  #         obj.save!
+  #         tbl[index - 1].code = obj.code
+  #       else
+  #         add_responder(obj, responder, severity_hash, type)
+  #         break if severity_hash[type.downcase] <= 0
+  #       end
+  #     elsif index == tbl.length - 1
+  #       add_responder(obj, responder, nil, nil)
+  #     end
+  #   end
+  # end
 
-  def add_responder(obj, responder, severity_hash, type)
-    obj.responders << responder
-    obj.save!
-    return unless severity_hash
-    responder.emergency_code = obj.code
-    severity_hash[type.downcase] -= responder.capacity
-  end
+  # def add_responder(obj, responder, severity_hash, type)
+  #   obj.responders << responder
+  #   obj.save!
+  #   return unless severity_hash
+  #   responder.emergency_code = obj.code
+  #   severity_hash[type.downcase] -= responder.capacity
+  # end
 end

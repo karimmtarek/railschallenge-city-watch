@@ -2,7 +2,7 @@ require 'application_responder'
 
 class ApplicationController < ActionController::Base
   self.responder = ApplicationResponder
-  respond_to :html, :json
+  respond_to :json
   before_action :not_found, only: [:new, :edit, :destroy]
 
   protect_from_forgery with: :null_session
@@ -36,36 +36,8 @@ class ApplicationController < ActionController::Base
     severity = severity_values(responder_types, emergency)
 
     dispatch_by_type(emergency, responder_types, severity, Responder)
-
-    # responder_types.each do |type|
-    #   if severity[type.downcase] > 0
-    #     responders_tbl = Responder.on_duty_by(type)
-    #     responders_tbl.each_with_index do |r, i|
-    #       if r.capacity <= severity[type.downcase]
-    #         if i == 0 || r.capacity == severity[type.downcase]
-    #           emergency.responders << r
-    #           emergency.save!
-    #           r.emergency_code = emergency.code
-    #           severity[type.downcase] -= r.capacity
-    #           break if severity[type.downcase] <= 0
-    #         elsif responders_tbl[i - 1].available?
-    #           emergency.responders << responders_tbl[i - 1]
-    #           emergency.save!
-    #           responders_tbl[i - 1].code = emergency.code
-    #         else
-    #           emergency.responders << r
-    #           emergency.save!
-    #           r.emergency_code = emergency.code
-    #           severity[type.downcase] -= r.capacity
-    #           break if severity[type.downcase] <= 0
-    #         end
-    #       elsif i == responders_tbl.length - 1
-    #         emergency.responders << r
-    #         emergency.save!
-    #       end
-    #     end
-    #   end
-    # end
+    emergency.calc_full_response
+    emergency.save
 
     @responders_names = emergency.responders.map(&:name) unless emergency.responders.blank?
   end
@@ -82,7 +54,7 @@ class ApplicationController < ActionController::Base
   def dispatch_by_type(obj, types, severity_hash, model)
     types.each do |type|
       next unless severity_hash[type.downcase] > 0
-      responders_tbl = model.on_duty_by(type)
+      responders_tbl = model.available_on_duty_by(type)
       dispatcher(obj, responders_tbl, severity_hash, type)
     end
   end

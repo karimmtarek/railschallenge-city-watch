@@ -8,23 +8,13 @@ class Emergency < ActiveRecord::Base
             numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   before_save :assign_emergency_code
 
-  def self.total_number
-    # where(resolved_at: nil).count
-    count
-  end
+  scope :total_number, -> { count }
+  scope :resolved_total_number, -> { where.not(resolved_at: nil).count }
+  scope :full_response, -> { where(full_response: 3).count }
+  scope :filter_by, ->(type) { order("#{type.downcase}_severity": :asc) }
 
-  def self.resolved_total_number
-    where.not(resolved_at: nil).count
-  end
-
-  def self.full_response
-    where(full_response: 3).count
-  end
-
-  def self.filter_by(type)
-    # where(resolved_at: nil).
-    # where("#{type.downcase}_severity >= ?", 1).
-    order("#{type.downcase}_severity": :asc)
+  def full_response?
+    full_response == 3
   end
 
   def severity(type)
@@ -55,7 +45,7 @@ class Emergency < ActiveRecord::Base
         self.full_response += 1 if responder_capacity >= self["#{type.downcase}_severity"]
       end
     end
-    save
+    # self.save
   end
 
   def zero_severity?
@@ -79,6 +69,5 @@ class Emergency < ActiveRecord::Base
       r.save
     end
     self.responders = []
-    # save
   end
 end

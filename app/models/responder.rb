@@ -8,20 +8,19 @@ class Responder < ActiveRecord::Base
 
   scope :available, -> { where(emergency_code: nil) }
   scope :on_duty, -> { where(on_duty: true) }
-  scope :uniq_types, -> { select(:type).distinct }
-  scope :types, -> { uniq_types.map(&:type) }
-  scope :types_count, -> { uniq_types.count }
-  scope :filter_by, ->(type) { where(type: type).order(capacity: :asc) }
-  scope :available_on_duty, -> { on_duty.available }
+  scope :types, -> { select(:type).distinct.map(&:type) }
   scope :available_on_duty_by, ->(type) { where(type: type).on_duty.available.order(capacity: :desc) }
   scope :total_capacity_by, ->(type) { where(type: type).sum(:capacity) }
   scope :total_available_capacity_by, ->(type) { where(type: type).available.sum(:capacity) }
   scope :total_on_duty_capacity_by, ->(type) { where(type: type).on_duty.sum(:capacity) }
   scope :total_available_on_duty_capacity_by, ->(type) { where(type: type).available.on_duty.sum(:capacity) }
-  scope :on_duty_capacity, -> { on_duty.sum(:capacity) }
 
   def available?
     emergency_code.blank?
+  end
+
+  def not_available?
+    emergency_code.present?
   end
 
   def on_duty?

@@ -6,7 +6,6 @@ class Emergency < ActiveRecord::Base
             :medical_severity,
             presence: true,
             numericality: { only_integer: true, greater_than_or_equal_to: 0 }
-  # before_save :assign_emergency_code
 
   scope :total_number, -> { count }
   scope :resolved_total_number, -> { where.not(resolved_at: nil).count }

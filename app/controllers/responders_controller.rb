@@ -66,20 +66,7 @@ class RespondersController < ApplicationController
 
   def responders_capacity
     @types = Responder.types
-
-    @responders_capacity  = []
-    responder_capacity = []
-
-    @types.each do |type|
-      total_capacity = Responder.total_capacity_by(type)
-      available_capacity = Responder.total_available_capacity_by(type)
-      on_duty_capacity = Responder.total_on_duty_capacity_by(type)
-      available_on_duty_capacity = Responder.total_available_on_duty_capacity_by(type)
-
-      responder_capacity << total_capacity << available_capacity << on_duty_capacity << available_on_duty_capacity
-      @responders_capacity << responder_capacity
-      responder_capacity = []
-    end
+    @responders_capacity = Responder.all_capacity
 
     render :show_capacity, status: :ok
   end

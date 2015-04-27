@@ -9,7 +9,6 @@ class Responder < ActiveRecord::Base
   scope :available, -> { where(emergency_code: nil) }
   scope :on_duty, -> { where(on_duty: true) }
   scope :types, -> { select(:type).distinct.map(&:type) }
-  scope :available_on_duty_count, -> { on_duty.available.count }
   scope :available_on_duty_by, ->(type) { where(type: type).on_duty.available.order(capacity: :desc) }
   scope :total_capacity_by, ->(type) { where(type: type).sum(:capacity) }
   scope :total_available_capacity_by, ->(type) { where(type: type).available.sum(:capacity) }
@@ -20,20 +19,24 @@ class Responder < ActiveRecord::Base
     emergency_code.blank?
   end
 
-  def not_available?
-    emergency_code.present?
-  end
-
-  def on_duty?
-    on_duty
-  end
-
-  def available_on_duty?
-    available? && on_duty?
-  end
-
   def remove_emergency_code
     return unless emergency_id.blank?
     self.emergency_code = nil
+  end
+
+  def self.all_capacity
+    responders_capacity = []
+    responder_capacity = []
+    types.each do |type|
+      responder_capacity.push(
+        total_capacity_by(type),
+        total_available_capacity_by(type),
+        total_on_duty_capacity_by(type),
+        total_available_on_duty_capacity_by(type)
+      )
+      responders_capacity << responder_capacity
+      responder_capacity = []
+    end
+    responders_capacity
   end
 end

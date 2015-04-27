@@ -9,6 +9,7 @@ class Responder < ActiveRecord::Base
   scope :available, -> { where(emergency_code: nil) }
   scope :on_duty, -> { where(on_duty: true) }
   scope :types, -> { select(:type).distinct.map(&:type) }
+  scope :available_on_duty_count, -> { on_duty.available.count }
   scope :available_on_duty_by, ->(type) { where(type: type).on_duty.available.order(capacity: :desc) }
   scope :total_capacity_by, ->(type) { where(type: type).sum(:capacity) }
   scope :total_available_capacity_by, ->(type) { where(type: type).available.sum(:capacity) }
